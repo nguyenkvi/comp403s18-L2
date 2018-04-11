@@ -476,6 +476,8 @@ let stdlib_tctx = [
   "map", "(list[a], (a -> b)) -> list[b]";
   "mapt", "(tree[a], (a -> b)) -> tree[b]";
   "filter", "(list[a], (a -> bool)) -> list[a]";
+  "split", "(list[a], num) -> list[list[a]]";
+  "sortby", "(list[a], (a -> num)) -> list[a]";
 
   "sort", "(list[num]) -> list[num]";
   "merge", "(list[num], list[num]) -> list[num]";

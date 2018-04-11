@@ -84,6 +84,10 @@ let rec sort = fun l ->
     let greater = filter (cdr l) (fun e -> e >= p) in
     append (sort lesser) (p :: (sort greater))
 
+(* TODO: sort by *)
+
+(* TODO: split *)
+
 let rec dedup = fun l ->
   if l = [] then [] else
   if (cdr l) = [] then l else

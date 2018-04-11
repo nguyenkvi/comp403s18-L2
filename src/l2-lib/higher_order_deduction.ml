@@ -268,3 +268,5 @@ let rec push_specs (skel: Skeleton.t) : Skeleton.t Option.t =
     in
     let m_func = push_specs func in
     m_args >>= fun args -> m_func >>| fun func -> Sk.apply func args spec
+
+(* TODO: Write higher order deductions for split/sort by *)

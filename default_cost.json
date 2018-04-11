@@ -13,7 +13,9 @@
         "foldt": 3,
         "map": 2,
         "mapt": 2,
-        "filter": 2
+        "filter": 2,
+        "split": 2,
+        "sortby": 2
     },
     "call_default": 1
 }

@@ -11,6 +11,8 @@ module TypMemoizer = Sstream.Memoizer (Type) (TypedExpr)
 module SimpleMemoizer =
   Sstream.Memoizer (struct type t = TypedExpr.t list [@@deriving compare, sexp] end) (Expr)
 
+(* TODO: make it print split and sortby *)
+
 type config = {
   verbosity: int;
   untyped: bool;
