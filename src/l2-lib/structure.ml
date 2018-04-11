@@ -27,7 +27,6 @@ module Cost = struct
     map: int;
     mapt: int;
     filter: int;
-    split: int;
     sortby: int;
   }
 
@@ -39,7 +38,6 @@ module Cost = struct
     map = 7;
     mapt = 7;
     filter = 7;
-    split = 7;
     sortby = 7;
   }
 
@@ -51,12 +49,11 @@ module Cost = struct
     map = 1;
     mapt = 1;
     filter = 1;
-    split = 1;
     sortby = 1;
   }
 end
 
-(* TODO: Figure out what is happening below here *)
+(* TO DO: Figure out what is happening below here *)
 
 module Spec = struct
   type t = {

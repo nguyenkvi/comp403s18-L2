@@ -42,6 +42,8 @@ let rec foldt = fun t f i ->
   if t = {} then i else
     f (map (children t) (fun ct -> foldt ct f i)) (value t)
 
+(* TO DO: sortby *)
+
 let rec merge = fun x y ->
   if x = [] then y else if y = [] then x else
     let a = car x in
@@ -77,16 +79,17 @@ let rec drop = fun l x ->
   if x = 0 || l = [] then l else
     drop (cdr l) (x - 1)
 
+(* TO DO: split *)
+let rec split = fun l x -> 
+  if x = 0 || l = [] then l else
+    drop (cdr l) (x - 1)
+
 let rec sort = fun l ->
   if l = [] then [] else
     let p = car l in
     let lesser = filter (cdr l) (fun e -> e < p) in
     let greater = filter (cdr l) (fun e -> e >= p) in
     append (sort lesser) (p :: (sort greater))
-
-(* TODO: sort by *)
-
-(* TODO: split *)
 
 let rec dedup = fun l ->
   if l = [] then [] else

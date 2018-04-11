@@ -198,6 +198,10 @@ module Deduce_foldt = Make_deduce_fold (struct
     let examples_of_io _ _ = Error ()
   end)
 
+(* TO DO *)
+module Deduce_sortby = Make_deduce_2 (struct
+  end)
+
 let deduce_lambda lambda spec =
   let (num_args, body) = lambda in
   if Sp.equal (Sk.spec body) Sp.top then
@@ -260,6 +264,7 @@ let rec push_specs (skel: Skeleton.t) : Skeleton.t Option.t =
       | Sk.Id (Sk.Id.Name "foldl") -> Deduce_foldl.deduce spec args
       | Sk.Id (Sk.Id.Name "foldr") -> Deduce_foldr.deduce spec args
       | Sk.Id (Sk.Id.Name "foldt") -> Deduce_foldt.deduce spec args
+      | Sk.Id (Sk.Id.Name "sortby") -> Deduce_sortby.deduce spec args
       | _ -> args        
     in
     let m_args =
@@ -268,5 +273,3 @@ let rec push_specs (skel: Skeleton.t) : Skeleton.t Option.t =
     in
     let m_func = push_specs func in
     m_args >>= fun args -> m_func >>| fun func -> Sk.apply func args spec
-
-(* TODO: Write higher order deductions for split/sort by *)
