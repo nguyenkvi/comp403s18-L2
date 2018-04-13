@@ -79,8 +79,13 @@ let rec drop = fun l x ->
   if x = 0 || l = [] then l else
     drop (cdr l) (x - 1)
 
-(* TO DO: split *)
-let rec split = fun l x -> 
+(* TO DO: ADDED drop_nth *)
+let rec drop_nth = fun l x ->
+  if l = [] then [] else
+  if x = 0 then (cdr l) else
+      ((car l) :: (drop_nth (cdr l) (x - 1)))
+
+let rec split = fun l x ->
   if x = 0 || l = [] then l else
     drop (cdr l) (x - 1)
 
@@ -183,9 +188,9 @@ let rec replace l x y =
 (** Int list functions *)
 let rec sum x =
   if x = [] then 0 else (car x) + (sum (cdr x))
-                                  
+
 let mean x = (sum x) / (len x)
-  
+
 let median x =
   car (drop (sort x) ((len x) / 2))
 
