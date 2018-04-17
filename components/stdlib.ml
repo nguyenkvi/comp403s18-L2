@@ -101,7 +101,7 @@ let rec sort_by = fun l f ->
     let p = car l in
     let lesser = filter (cdr l) (fun e -> (f e) < (f p)) in
     let greater = filter (cdr l) (fun e -> (f e) >= (f p)) in
-    append (sort_by lesser) (p :: (sort_by greater))
+    append (sort_by lesser f) (p :: (sort_by greater f))
 
 let rec split = fun l x ->
   if x = 0 || l = [] then l else
