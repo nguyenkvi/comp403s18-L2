@@ -28,7 +28,7 @@ let default_cost_model : CostModel.t =
           | "zipWith" -> 3
           | "map"
           | "mapt"
-          | "sortby"
+          | "sort_by"
           | "filter" -> 2
           | _ -> 1
         end

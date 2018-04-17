@@ -27,7 +27,7 @@ module Cost = struct
     map: int;
     mapt: int;
     filter: int;
-    sortby: int;
+    sort_by: int;
   }
 
   let default = {
@@ -38,7 +38,7 @@ module Cost = struct
     map = 7;
     mapt = 7;
     filter = 7;
-    sortby = 7;
+    sort_by = 7;
   }
 
   let flat = {
@@ -49,7 +49,7 @@ module Cost = struct
     map = 1;
     mapt = 1;
     filter = 1;
-    sortby = 1;
+    sort_by = 1;
   }
 end
 

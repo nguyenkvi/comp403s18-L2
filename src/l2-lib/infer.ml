@@ -431,7 +431,7 @@ let typeof (ctx: typ Ctx.t) (level: level) (expr: expr) : TypedExpr.t =
        | None -> error (Info.of_thunk (fun () ->
            sprintf "%s is unbound in context %s."
              name (Ctx.to_string ctx Type0.to_string))))
-      
+
     | `Lambda (args, body) ->
       (* Generate fresh type variables for each argument and bind them
          into the existing context. *)
@@ -441,7 +441,7 @@ let typeof (ctx: typ Ctx.t) (level: level) (expr: expr) : TypedExpr.t =
       let arg_typs = List.map args ~f:(fun arg -> Ctx.lookup_exn ctx' arg) in
       let body' = typeof' ctx' level body in
       Lambda ((args, body'), Arrow_t (arg_typs, TypedExpr.to_type body'))
-        
+
     | `Apply (func, args) ->
       let func' = typeof' ctx level func in
       let args' = List.map args ~f:(typeof' ctx level) in
@@ -450,7 +450,7 @@ let typeof (ctx: typ Ctx.t) (level: level) (expr: expr) : TypedExpr.t =
        | Some pairs -> List.iter pairs ~f:(fun (typ, arg') -> unify_exn typ (TypedExpr.to_type arg'))
        | None -> error (Info.of_string "Wrong number of arguments."));
       Apply ((func', args'), ret_typ)
-        
+
     | `Op (op, args) ->
       let args' = List.map args ~f:(typeof' ctx level) in
       let arg_typs, ret_typ = typeof_func (List.length args) (instantiate level (Op.typ op)) in
@@ -458,7 +458,7 @@ let typeof (ctx: typ Ctx.t) (level: level) (expr: expr) : TypedExpr.t =
        | Some pairs -> List.iter pairs ~f:(fun (typ, arg') -> unify_exn typ (TypedExpr.to_type arg'))
        | None -> error (Info.of_string "Wrong number of arguments."));
       Op ((op, args'), ret_typ)
-        
+
     | `Let (name, bound, body) ->
       (* Bind a fresh free type variable to the name. *)
       let ctx = Ctx.bind ctx name (fresh_free level) in
@@ -577,7 +577,7 @@ module Type = struct
               let t', u' = of_tree ctx y in
               let u'' = Unifier.of_types_exn t t' in
               (Unifier.apply u'' t', u''))
-            
+
       and of_list ctx = function
         | [] -> fresh_free 0, Unifier.empty
         | x::xs ->
@@ -611,12 +611,12 @@ module Type = struct
         let ret_t = fresh_free 0 in
         let u' = Unifier.of_types_exn (Unifier.apply u func_t) (Unifier.apply u (Arrow_t (args_t, ret_t))) in
         Unifier.apply u' ret_t, Unifier.compose ~outer:u ~inner:u'
-  
+
       and of_func ctx func args =
         let t, u = of_expr ctx func in
         let t = Unifier.apply u t in
         of_callable ctx t u args
-  
+
       and of_op ctx op args =
         let t = Op.typ op |> instantiate 0 in
         of_callable ctx t Unifier.empty args
@@ -631,9 +631,9 @@ module Type = struct
         let body_t, u' = of_expr (String.Map.add ctx ~key:name ~data:bound_t) body in
         let u = Unifier.compose ~outer:u ~inner:u' in
         Unifier.apply u body_t, u
-        
+
       and of_expr ctx expr =
-        try 
+        try
           let t, u = match expr with
             | `Num x -> Const_t Num_t, Unifier.empty
             | `Bool x -> Const_t Bool_t, Unifier.empty
@@ -657,7 +657,7 @@ module Type = struct
       in
 
       of_expr ctx expr
-          
+
   let are_unifiable t1 t2 = Option.is_some (Unifier.of_types t1 t2)
 end
 

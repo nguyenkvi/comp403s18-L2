@@ -6,7 +6,7 @@ open Collections
 open Infer
 open Structure
 open Util
-    
+
 module TypMemoizer = Sstream.Memoizer (Type) (TypedExpr)
 module SimpleMemoizer =
   Sstream.Memoizer (struct type t = TypedExpr.t list [@@deriving compare, sexp] end) (Expr)
@@ -138,7 +138,7 @@ let (stdlib_evctx: ExprValue.t Ctx.t) =
 let matrix_of_texpr_list ~size (texprs: TypedExpr.t list) : TypedExpr.t Sstream.matrix =
   let init_sizes = List.map texprs ~f:(fun e -> e, size e) in
   let max_size =
-    List.fold_left init_sizes ~init:0 ~f:(fun x (_, y) -> if x > y then x else y) 
+    List.fold_left init_sizes ~init:0 ~f:(fun x (_, y) -> if x > y then x else y)
   in
   List.range ~stop:`inclusive 1 max_size
   |> List.map ~f:(fun s ->
@@ -186,7 +186,7 @@ let rec simple_enumerate
 
   let (op_matrices : expr matrix list) =
     List.map Expr.Op.all ~f:(fun op ->
-        let meta = Expr.Op.meta op in 
+        let meta = Expr.Op.meta op in
         op_matrix op meta.Expr.Op.typ)
   in
 
@@ -203,15 +203,15 @@ let rec enumerate
     ?(ops=default_ops)
     ?(memo=TypMemoizer.empty ())
     config
-    init 
-    typ 
+    init
+    typ
   : TypedExpr.t Sstream.matrix =
   let open Sstream in
 
   (* Init is finite, so we can construct an init stream by breaking
      init into a list of size classes and returning that list as a
      stream. *)
-  let init_matrix = 
+  let init_matrix =
     List.filter init ~f:(fun e -> is_unifiable typ (TypedExpr.to_type e))
     |> matrix_of_texpr_list ~size:(fun e -> Expr.cost (TypedExpr.to_expr e))
   in
@@ -304,7 +304,7 @@ let rec enumerate
 
   let apply_matrices =
     init
-    |> List.filter ~f:(fun texpr -> 
+    |> List.filter ~f:(fun texpr ->
         match TypedExpr.to_type texpr with
         | Arrow_t (_, ret_typ) -> is_unifiable typ ret_typ
         | _ -> false)
@@ -316,7 +316,7 @@ let rec enumerate
         | _ -> arrow_error ())
     |> List.map ~f:(fun (func, func_typ) -> apply_matrix func func_typ)
   in
-  
+
   merge (init_matrix::(op_matrices @ apply_matrices))
   |> map ~f:(List.filter ~f:(fun x ->
       let e = TypedExpr.to_expr x in
@@ -347,7 +347,7 @@ let solve_single
     { Spec.target;
       Spec.holes =
         Ctx.of_alist_exn [
-          target_name, 
+          target_name,
           { examples = List.map examples ~f:(fun ex -> ex, Ctx.empty ());
             signature = Example.signature examples;
             tctx = Ctx.empty ();
@@ -400,7 +400,7 @@ let solve_single
     else
       fun hypo_cost enum_cost -> hypo_cost + (Int.of_float (1.5 ** (Float.of_int enum_cost)))
   in
-  
+
   let solver_of_spec spec =
     let matrix = match Ctx.to_alist spec.Spec.holes with
       | [] -> failwith "Specification has no holes."
@@ -412,7 +412,7 @@ let solve_single
           (Ctx.empty ())
     in
 
-    Sstream.map_matrix matrix ~f:(fun ctx -> 
+    Sstream.map_matrix matrix ~f:(fun ctx ->
         let target = spec.Spec.target ctx in
         log config.verbosity 2 (sprintf "Examined %s." (Expr.to_string (target (`Id "_"))));
         if verify target examples then Some target else None)

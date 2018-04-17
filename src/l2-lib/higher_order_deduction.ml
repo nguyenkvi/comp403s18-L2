@@ -67,7 +67,7 @@ module Make_deduce_2 (M : Deduce_2_intf) = struct
     | [ list; lambda ] when Sp.equal (Sk.spec lambda) Sp.top ->
       begin
         match Sk.ast list with
-        | Sk.Id (Sk.Id.StaticDistance sd) -> 
+        | Sk.Id (Sk.Id.StaticDistance sd) ->
           let child_spec = lambda_spec sd spec in
           [ list; Sk.replace_spec lambda child_spec ]
         | _ -> args
@@ -199,7 +199,18 @@ module Deduce_foldt = Make_deduce_fold (struct
   end)
 
 (* TO DO *)
-module Deduce_sortby = Make_deduce_2 (struct
+module Deduce_sort_by = Make_deduce_2 (struct
+    let name = "sort_by"
+    let examples_of_io in_v out_v =
+      let out = match out_v with
+        | `List out -> out
+        | _ -> ret_err name out_v
+      in
+      let inp = match in_v with
+        | `List inp -> inp
+        | _ -> input_err name in_v
+      in
+      Option.value_map (List.zip inp out) ~default:(Error ()) ~f:(fun io -> Ok (io))
   end)
 
 let deduce_lambda lambda spec =
@@ -264,8 +275,8 @@ let rec push_specs (skel: Skeleton.t) : Skeleton.t Option.t =
       | Sk.Id (Sk.Id.Name "foldl") -> Deduce_foldl.deduce spec args
       | Sk.Id (Sk.Id.Name "foldr") -> Deduce_foldr.deduce spec args
       | Sk.Id (Sk.Id.Name "foldt") -> Deduce_foldt.deduce spec args
-      | Sk.Id (Sk.Id.Name "sortby") -> Deduce_sortby.deduce spec args
-      | _ -> args        
+      | Sk.Id (Sk.Id.Name "sort_by") -> Deduce_sort_by.deduce spec args
+      | _ -> args
     in
     let m_args =
       if List.exists args ~f:(fun a -> Sp.equal (Sk.spec a) Sp.bottom) then None else
