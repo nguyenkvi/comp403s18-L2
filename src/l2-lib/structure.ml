@@ -38,7 +38,7 @@ module Cost = struct
     map = 7;
     mapt = 7;
     filter = 7;
-    sort_by = 7;
+    sort_by = 3;
   }
 
   let flat = {
@@ -288,7 +288,7 @@ module Spec = struct
           | `List [x] -> Some ((apply_lambda init_expr x, result), vctx)
           | `List (r::rs) ->
             begin match List.rev (r::rs) with
-              | x::xs -> 
+              | x::xs ->
                 let acc_result_m = List.find_map examples ~f:(fun ((_, result), vctx) ->
                     match Ctx.lookup_exn vctx list_name with
                     | `List rs' when xs = (List.rev rs') -> Some result

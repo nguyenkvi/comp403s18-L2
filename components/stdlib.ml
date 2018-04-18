@@ -42,19 +42,6 @@ let rec foldt = fun t f i ->
   if t = {} then i else
     f (map (children t) (fun ct -> foldt ct f i)) (value t)
 
-(* TO DO: sort_by *)
-(* let sort_by l f =
-  let rec insert = fun value lst ->
-    if lst = [] then [value] else
-      let h = car lst in
-      let t = cdr lst in
-      if (f h) > (f value) then value :: (h :: t) else
-        h :: (insert value t)
-  in let rec sort1 = fun lst ->
-    if lst = [] then [] else
-      insert (car lst) (sort1 (cdr lst))
-  in sort1 l *)
-
 let rec merge = fun x y ->
   if x = [] then y else if y = [] then x else
     let a = car x in

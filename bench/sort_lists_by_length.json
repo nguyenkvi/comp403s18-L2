@@ -1,0 +1,14 @@
+{
+  "name": "sortby",
+  "description": "For a list of ints, sortbys the list.",
+  "kind": "examples",
+  "contents": {
+    "examples": [
+      "(sortby []) -> []", "(sortby [[1]]) -> [[1]]",
+      "(sortby [[2] [1]]) -> [[2] [1]]",
+      "(sortby [[6] [4 5] [2 1]]) -> [[6] [4 5] [2 1]]",
+      "(sortby [[1 7] [11] [1 1 1]]) -> [[11] [1 7] [1 1 1]]"
+    ],
+    "background": []
+  }
+}

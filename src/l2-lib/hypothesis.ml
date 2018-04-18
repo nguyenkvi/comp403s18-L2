@@ -14,7 +14,7 @@ module StaticDistance = struct
 
   module C = Comparable.Make(T)
   include (C : module type of C with module Map := C.Map)
-    
+
   let create ~distance ~index =
     let open Int in
     if distance <= 0 || index <= 0 then
@@ -53,7 +53,7 @@ module StaticDistance = struct
       in
       "{ " ^ str ^ " }"
   end
-  
+
   let map_increment_scope = Map.increment_scope
 end
 
@@ -63,7 +63,7 @@ module Symbol = struct
 
     let (names: string Int.Table.t) = Int.Table.create ()
     let (counter: int ref) = ref 0
-    
+
     let (compare: t -> t -> int) = Int.compare
     let (equal: t -> t -> bool) = Int.equal
 
@@ -79,7 +79,7 @@ module Symbol = struct
       | Some name -> name
       | None -> failwiths (sprintf "BUG: Looking up name of symbol '%d' failed." s)
                   names [%sexp_of:string Int.Table.t]
-    
+
     let sexp_of_t (s: t) : Sexp.t = Sexp.Atom (to_string s)
 
     let t_of_sexp (s: Sexp.t) : t =
@@ -114,7 +114,7 @@ module Hole = struct
   let equal h1 h2 = compare h1 h2 = 0
   let equal_id h1 h2 = h1.id = h2.id
   let hash = Hashtbl.hash
-  
+
   let to_string h = Sexp.to_string_hum (sexp_of_t h)
 
   let create ?ctx:(ctx = StaticDistance.Map.empty) type_ symbol = begin
@@ -134,7 +134,7 @@ end
 module Skeleton = struct
   module Id = struct
     module T = struct
-      type t = 
+      type t =
         | StaticDistance of StaticDistance.t
         | Name of string
       [@@deriving compare, sexp]
@@ -184,9 +184,9 @@ module Skeleton = struct
     let get_id spec = spec |> Obj.extension_constructor |> Obj.extension_id in
     let cmp = Int.compare (get_id s1.data) (get_id s2.data) in
     if cmp = 0 then s1.compare s2 else cmp
-      
+
   let equal_spec s1 s2 = compare_spec s1 s2 = 0
-  
+
   let rec sexp_of_ast =
     let module S = Sexp in
     function
@@ -204,14 +204,14 @@ module Skeleton = struct
       S.List [S.Atom "Apply"; [%sexp_of:t] func; [%sexp_of:t list] args]
     | Op { op; args } ->
       S.List [S.Atom "Op"; [%sexp_of:Expr.Op.t] op; [%sexp_of:t list] args]
-                 
+
   and sexp_of_spec sp = sp.to_sexp ()
 
   and sexp_of_skel : skel -> Sexp.t =
     let open Sexp in
     fun { spec; ast } ->
       List [ [%sexp_of:ast] ast; [%sexp_of:spec] spec ]
-    
+
   and sexp_of_t : t -> Sexp.t =
     fun sk -> [%sexp_of:skel] sk.Hashcons.node
 
@@ -258,9 +258,9 @@ module Skeleton = struct
             equal_ast s1.ast s2.ast && equal_spec s1.spec s2.spec
 
           let hash_t s = s.Hashcons.hkey
-                           
+
           let hash_spec = Hashtbl.hash
-                            
+
           let hash_ast = function
             | Num x -> Int.hash x
             | Bool x -> Bool.hash x
@@ -275,9 +275,9 @@ module Skeleton = struct
               Hash.combine (hash_t func) (List.hash args ~hash_elem:hash_t)
             | Op { op; args } ->
               Hash.combine (Expr.Op.hash op) (List.hash args ~hash_elem:hash_t)
-                
+
           let hash_skel sk = Hash.combine (hash_spec sk.spec) (hash_ast sk.ast)
-              
+
           let equal h1 h2 =
             Counter.incr counter "equal";
             let ret = equal_skel h1 h2 in
@@ -287,7 +287,7 @@ module Skeleton = struct
               Counter.incr counter "equal_false";
             ret
 
-          let hash h = 
+          let hash h =
             Counter.incr counter "hash";
             hash_skel h
         end)
@@ -329,17 +329,17 @@ module Skeleton = struct
 
   (** Replacement functions for record fields. *)
   let replace_spec sk spec = Table.hashcons table { sk.Hashcons.node with spec }
-  
+
   let rec to_pp : ?indent:int -> t -> Pp.t =
     let module SD = StaticDistance in
     let module O = Expr.Op in
     let open Pp in
     fun ?(indent=4) ->
       let fresh_name = Util.Fresh.mk_fresh_name_fun () in
-      
+
       let rec to_pp ?(parens = false) names sk =
         let apply_parens pp = if parens then text "(" $ pp $ text ")" else pp in
-        
+
         let infix_op op x1 x2 =
           let pp =
             to_pp ~parens:true names x1 $/
@@ -348,7 +348,7 @@ module Skeleton = struct
           in
           apply_parens pp
         in
-        
+
         match ast sk with
         | Num x -> text (Int.to_string x)
         | Bool x -> text (Bool.to_string x)
@@ -360,7 +360,7 @@ module Skeleton = struct
             | None -> text (SD.to_string x)
           end
         | Id (Id.Name x) -> text x
-                              
+
         | Let { bound; body } ->
           let name = fresh_name () in
           let names =
@@ -373,7 +373,7 @@ module Skeleton = struct
             to_pp names body
           in
           apply_parens pp
-            
+
         | Lambda { num_args; body } ->
           let new_names =
             List.init num_args ~f:(fun i ->
@@ -388,7 +388,7 @@ module Skeleton = struct
             nest indent (to_pp names body)
           in
           apply_parens pp
-            
+
         | Apply { func; args } ->
           let pp =
             to_pp names func $/ list ~sep:break ~f:(to_pp ~parens:true names) args
@@ -421,7 +421,7 @@ module Skeleton = struct
             text "else" $/ to_pp ~parens:true names x3
           in
           apply_parens pp
-        | Op { op; args } -> 
+        | Op { op; args } ->
           let pp =
             text (Expr.Op.to_string op) $/
             list ~sep:break ~f:(to_pp ~parens:true names) args
@@ -434,7 +434,7 @@ module Skeleton = struct
 
   let rec to_string_hum : t -> string =
     fun s -> to_pp s |> Pp.to_string
-  
+
   let to_expr :
     ?ctx:Expr.t StaticDistance.Map.t
     -> ?fresh_name:(unit -> string)
@@ -462,7 +462,7 @@ module Skeleton = struct
             match Map.find ctx x with
             | Some expr -> expr
             | None ->
-              failwiths "Context does not contain coordinate." (s, x, ctx) 
+              failwiths "Context does not contain coordinate." (s, x, ctx)
                 (Tuple.T3.sexp_of_t
                    (fun _ -> Sexp.Atom "Implement sexp_of_skeleton")
                    [%sexp_of:SD.t]
@@ -496,7 +496,7 @@ module Skeleton = struct
 
   let to_expr_exn ?(ctx = StaticDistance.Map.empty) ?(fresh_name) s =
     to_expr ~ctx ?fresh_name s
-      
+
   let rec map_hole ~f sk =
     let spec = spec sk in
     match ast sk with
@@ -513,7 +513,7 @@ module Skeleton = struct
     | Hole h -> hole (f h) spec
 
   let fill_hole h ~parent ~child =
-    let rec fill h ~child parent = 
+    let rec fill h ~child parent =
       let spec = spec parent in
       match ast parent with
       | Num _
@@ -531,7 +531,7 @@ module Skeleton = struct
       | Hole h' -> if Hole.equal_id h h' then child else parent
     in
     fill h parent ~child
-      
+
   let rec holes sk =
     match ast sk with
     | Num _
@@ -597,7 +597,7 @@ end
 
 module PerFunctionCostModel = struct
   module CM = CostModel
-    
+
   type t = {
     num : int;
     bool: int;
@@ -612,7 +612,7 @@ module PerFunctionCostModel = struct
   }
 
   let to_cost_model t =
-    let lookup_func op = 
+    let lookup_func op =
       match String.Map.find t.call op with
       | Some cost -> cost
       | None -> t.call_default
@@ -631,7 +631,7 @@ module PerFunctionCostModel = struct
           | Skeleton.Id.Name op -> lookup_func op
           | Skeleton.Id.StaticDistance sd -> t.var);
     }
-  
+
   let to_json t =
     let call_to_json m =
       String.Map.to_alist m
@@ -671,7 +671,7 @@ module PerFunctionCostModel = struct
       | `Assoc x -> call_of_json x
       | json -> failwiths "Expected a mapping from string to int." json [%sexp_of:Json.json]
     in
-      
+
     match json with
     | `Assoc kv ->
       {
@@ -690,7 +690,7 @@ module PerFunctionCostModel = struct
 end
 
 module Specification0 = struct
-  module T = struct 
+  module T = struct
     type data = Skeleton.spec_data = ..
 
     type t = Skeleton.spec = {
@@ -745,7 +745,7 @@ end
 module Examples = struct
   module S = Specification0
   module SD = StaticDistance
-    
+
   module Input = struct
     module T = struct
       type t = Ast.value SD.Map.t [@@deriving sexp, compare]
@@ -771,13 +771,13 @@ module Examples = struct
         | None -> Ok (I.Map.add m ~key:ctx ~data:ret))
     |> ignore
     >>| fun () -> List.dedup ~compare:compare_example exs
-      
+
   let of_list_exn exs = of_list exs |> Or_error.ok_exn
-                                         
+
   let to_list t = t
 
   let singleton : example -> t = fun ex -> [ex]
-  
+
   let context = function
     | [] -> []
     | (inp, out)::_ -> Map.keys inp
@@ -822,7 +822,7 @@ module FunctionExamples = struct
   module S = Specification0
 
   module SD = StaticDistance
-    
+
   module Input = struct
     module T = struct
       type t = Ast.value SD.Map.t * Ast.value list [@@deriving sexp, compare]
@@ -847,15 +847,15 @@ module FunctionExamples = struct
         | None -> Ok (Map.add m ~key ~data:ret))
     |> ignore
     >>| fun () -> List.dedup ~compare:compare_example exs
-  let of_list_exn exs = of_list exs |> Or_error.ok_exn    
+  let of_list_exn exs = of_list exs |> Or_error.ok_exn
 
   let of_input_output_list : (Value.t list * Value.t) list -> t Or_error.t =
     fun io ->
       List.map io ~f:(fun (i, o) -> (SD.Map.empty, i), o)
       |> of_list
-  let of_input_output_list_exn : (Value.t list * Value.t) list -> t = 
+  let of_input_output_list_exn : (Value.t list * Value.t) list -> t =
     fun io -> of_input_output_list io |> Or_error.ok_exn
-  
+
   let singleton : example -> t = fun ex -> [ex]
   let to_list t = t
 
@@ -935,7 +935,7 @@ module Inputs = struct
       with
       | Eval.HitRecursionLimit
       | Eval.RuntimeError _ -> None
-  
+
   let to_spec : t -> S.t = fun exs ->
     let verify library skel = signature library skel exs |> Option.is_some in
 
@@ -989,7 +989,7 @@ end
 module Hypothesis = struct
   module Sk = Skeleton
   module Sp = Specification
-    
+
   type kind =
     | Abstract
     | Concrete
@@ -1078,7 +1078,7 @@ module Hypothesis = struct
     }
 
   module C = CostModel
-  
+
   let num cm x s : t = {
     skeleton = Sk.num x s;
     cost = cm.C.num x;
